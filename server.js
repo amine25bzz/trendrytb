@@ -15,6 +15,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const BASE = 'https://www.googleapis.com/youtube/v3/videos';
+const SEARCH_BASE = 'https://www.googleapis.com/youtube/v3/search';
+const searchCache = new Map();
 
 export const CFG = {
   port: Number(process.env.PORT) || 3000,
@@ -149,6 +151,197 @@ export async function collect(deps = {}){
   return out;
 }
 
+const countryCache = new Map();
+
+export async function fetchCountryTrends(cc, deps = {}) {
+  const f = deps.fetchImpl || fetch;
+  const key = deps.apiKey !== undefined ? deps.apiKey : CFG.key;
+  if (!key) throw new Error('YOUTUBE_API_KEY غير مضبوط');
+
+  const ccUpper = cc.trim().toUpperCase();
+  const cached = countryCache.get(ccUpper);
+  if (cached && (Date.now() - cached.at < CFG.ttlMs)) {
+    return cached.data;
+  }
+
+  const jobs = [
+    { cc: ccUpper, cat: '', pages: CFG.generalPages }
+  ];
+  for (const cat of CFG.categories) {
+    jobs.push({ cc: ccUpper, cat, pages: 1 });
+  }
+
+  const vids = new Map();
+  await pool(jobs, 4, async j => {
+    try {
+      const items = await fetchChart(f, key, j.cc, j.cat, j.pages);
+      items.forEach((it, i) => absorb(vids, it, j.cc, i + 1));
+    } catch (e) {
+      // ignore individual category errors
+    }
+  });
+
+  if (!vids.size) {
+    throw new Error(`تعذّر جلب ترند الدولة: ${ccUpper}`);
+  }
+
+  const all = [...vids.values()].map(v => {
+    const countries = [...v._c.entries()].map(([c, rank]) => ({ cc: c, rank }));
+    const { _c, ...rest } = v;
+    return { ...rest, countries, bestRank: countries[0].rank };
+  });
+
+  // Sort strictly by this country's rank first!
+  const orderForCountry = (a, b) => {
+    const rA = a.countries.find(x => x.cc === ccUpper)?.rank || 999;
+    const rB = b.countries.find(x => x.cc === ccUpper)?.rank || 999;
+    return rA - rB || (b.views || 0) - (a.views || 0);
+  };
+
+  const chart = kind => {
+    const items = all.filter(v => v.kind === kind).sort(orderForCountry).slice(0, CFG.size);
+    return {
+      ok: true,
+      items: items.map((v, i) => ({ ...v, rank: i + 1 }))
+    };
+  };
+
+  const result = {
+    syncedAt: Date.now(),
+    regions: [ccUpper],
+    failed: {},
+    charts: { regular: chart('regular'), short: chart('short'), kids: chart('kids') }
+  };
+
+  countryCache.set(ccUpper, { at: Date.now(), data: result });
+  return result;
+}
+
+export async function searchYouTube(q, target = 'video', country = '', hours = 0, deps = {}){
+  const f = deps.fetchImpl || fetch;
+  const key = deps.apiKey !== undefined ? deps.apiKey : CFG.key;
+  if (!key) throw new Error('YOUTUBE_API_KEY غير مضبوط');
+  
+  const searchType = (target === 'channel') ? 'channel' : 'video';
+  const ccUpper = (country || '').trim().toUpperCase();
+  const cacheKey = `${searchType}:${ccUpper}:${hours}:${q.trim().toLowerCase()}`;
+  const cached = searchCache.get(cacheKey);
+  if (cached && (Date.now() - cached.at < 15 * 60 * 1000)) {
+    return cached.data;
+  }
+
+  let sUrl = `${SEARCH_BASE}?part=snippet&q=${encodeURIComponent(q)}&type=${searchType}&maxResults=40&key=${key}`;
+  if (ccUpper) {
+    sUrl += `&regionCode=${encodeURIComponent(ccUpper)}`;
+  }
+  if (hours > 0) {
+    const publishedAfter = new Date(Date.now() - hours * 3600 * 1000).toISOString();
+    sUrl += `&publishedAfter=${encodeURIComponent(publishedAfter)}&order=date`;
+  }
+
+  const sRes = await f(sUrl, { headers: { 'User-Agent': 'TrendRadar/1.0' }, signal: AbortSignal.timeout(15000) });
+  const sJson = await sRes.json().catch(() => ({}));
+  if (!sRes.ok) {
+    const err = sJson.error || {};
+    throw new Error(err.message || `HTTP ${sRes.status}`);
+  }
+
+  const searchItems = sJson.items || [];
+  
+  if (searchType === 'channel') {
+    const channelIds = searchItems.map(it => it.id && it.id.channelId).filter(Boolean);
+    if (!channelIds.length) {
+      const result = { ok: true, query: q, target: 'channel', country: ccUpper, hours, items: [], syncedAt: Date.now() };
+      searchCache.set(cacheKey, { at: Date.now(), data: result });
+      return result;
+    }
+    const cUrl = `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${channelIds.join(',')}&key=${key}`;
+    const cRes = await f(cUrl, { headers: { 'User-Agent': 'TrendRadar/1.0' }, signal: AbortSignal.timeout(15000) });
+    const cJson = await cRes.json().catch(() => ({}));
+    const detailMap = new Map();
+    (cJson.items || []).forEach(it => detailMap.set(it.id, it));
+
+    const items = [];
+    searchItems.forEach((sIt, index) => {
+      const cIt = detailMap.get(sIt.id.channelId) || sIt;
+      const sn = cIt.snippet || sIt.snippet || {};
+      const st = cIt.statistics || {};
+      const th = sn.thumbnails || {};
+      items.push({
+        rank: index + 1,
+        id: sIt.id.channelId,
+        url: `https://www.youtube.com/channel/${sIt.id.channelId}`,
+        title: sn.title || '—',
+        channel: sn.customUrl || sn.title || '—',
+        categoryId: 'channel',
+        thumb: (th.medium || th.default || {}).url || '',
+        views: st.viewCount != null ? Number(st.viewCount) : null,
+        likes: st.subscriberCount != null ? Number(st.subscriberCount) : null,
+        comments: st.videoCount != null ? Number(st.videoCount) : null,
+        published: sn.publishedAt || '',
+        duration: null,
+        live: false,
+        kind: 'channel',
+        countries: []
+      });
+    });
+    const result = { ok: true, query: q, target: 'channel', country: ccUpper, hours, items, syncedAt: Date.now() };
+    searchCache.set(cacheKey, { at: Date.now(), data: result });
+    return result;
+  }
+
+  const videoIds = searchItems.map(it => it.id && it.id.videoId).filter(Boolean);
+  if (!videoIds.length) {
+    const result = { ok: true, query: q, target: 'video', country: ccUpper, hours, items: [], syncedAt: Date.now() };
+    searchCache.set(cacheKey, { at: Date.now(), data: result });
+    return result;
+  }
+
+  const vUrl = `${BASE}?part=snippet,statistics,contentDetails,status&id=${videoIds.join(',')}&key=${key}`;
+  const vRes = await f(vUrl, { headers: { 'User-Agent': 'TrendRadar/1.0' }, signal: AbortSignal.timeout(15000) });
+  const vJson = await vRes.json().catch(() => ({}));
+  if (!vRes.ok) {
+    const err = vJson.error || {};
+    throw new Error(err.message || `HTTP ${vRes.status}`);
+  }
+
+  const detailMap = new Map();
+  (vJson.items || []).forEach(it => detailMap.set(it.id, it));
+
+  const items = [];
+  searchItems.forEach((sIt, index) => {
+    const vIt = detailMap.get(sIt.id.videoId) || sIt;
+    const sn = vIt.snippet || sIt.snippet || {};
+    const st = vIt.statistics || {};
+    const th = sn.thumbnails || {};
+    const dur = parseDuration(vIt.contentDetails && vIt.contentDetails.duration);
+    const live = !!(sn.liveBroadcastContent && sn.liveBroadcastContent !== 'none');
+    const kids = !!(vIt.status && vIt.status.madeForKids === true);
+    
+    items.push({
+      rank: index + 1,
+      id: sIt.id.videoId,
+      url: `https://www.youtube.com/watch?v=${sIt.id.videoId}`,
+      title: sn.title || '—',
+      channel: sn.channelTitle || '—',
+      categoryId: sn.categoryId || '',
+      thumb: (th.medium || th.default || {}).url || '',
+      views: st.viewCount != null ? Number(st.viewCount) : null,
+      likes: st.likeCount != null ? Number(st.likeCount) : null,
+      comments: st.commentCount != null ? Number(st.commentCount) : null,
+      published: sn.publishedAt || '',
+      duration: dur,
+      live,
+      kind: kids ? 'kids' : (!live && dur > 0 && dur <= CFG.shortMaxSec ? 'short' : 'regular'),
+      countries: []
+    });
+  });
+
+  const result = { ok: true, query: q, target: 'video', country: ccUpper, hours, items, syncedAt: Date.now() };
+  searchCache.set(cacheKey, { at: Date.now(), data: result });
+  return result;
+}
+
 /* ---------------- HTTP ---------------- */
 export function createServer(deps = {}){
   let cache = null, inflight = null;
@@ -173,7 +366,39 @@ export function createServer(deps = {}){
     if(req.method === 'OPTIONS'){ res.writeHead(204, cors); return res.end(); }
     try {
       if(url.pathname === '/api/trends'){
-        const data = await getTrends(url.searchParams.get('refresh') === '1');
+        const cc = (url.searchParams.get('country') || '').trim().toUpperCase();
+        let data;
+        if(cc && cc !== 'ALL'){
+          data = await fetchCountryTrends(cc, deps);
+        } else {
+          data = await getTrends(url.searchParams.get('refresh') === '1');
+        }
+        res.writeHead(200, { ...cors, 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
+        return res.end(JSON.stringify(data));
+      }
+      if(url.pathname === '/api/search'){
+        const q = (url.searchParams.get('q') || '').trim();
+        const target = (url.searchParams.get('target') || 'video').trim().toLowerCase();
+        const country = (url.searchParams.get('country') || '').trim().toUpperCase();
+        const hours = Number(url.searchParams.get('hours')) || 0;
+        if(!q){
+          res.writeHead(400, { ...cors, 'Content-Type': 'application/json; charset=utf-8' });
+          return res.end(JSON.stringify({ error: 'Search query is required' }));
+        }
+        const data = await searchYouTube(q, target, country, hours, deps);
+        if(cache && cache.data && cache.data.charts){
+          const allTrending = new Map();
+          Object.values(cache.data.charts).forEach(ch => {
+            (ch.items || []).forEach(v => allTrending.set(v.id, v));
+          });
+          data.items.forEach(it => {
+            const tr = allTrending.get(it.id);
+            if(tr && tr.countries){
+              it.countries = tr.countries;
+              it.bestRank = tr.bestRank;
+            }
+          });
+        }
         res.writeHead(200, { ...cors, 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
         return res.end(JSON.stringify(data));
       }
