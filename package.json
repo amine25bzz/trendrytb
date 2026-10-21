@@ -1,0 +1,10 @@
+{
+  "name": "trendradar",
+  "version": "4.0.0",
+  "private": true,
+  "type": "module",
+  "description": "لوحة ترندات App Store و Google Play و GitHub",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" },
+  "dependencies": { "google-play-scraper": "^10.1.3" }
+}
