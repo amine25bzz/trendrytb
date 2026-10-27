@@ -1,11 +1,10 @@
 // TrendRadar — خادم صغير يجلب ترند يوتيوب من YouTube Data API
 // ----------------------------------------------------------------
-// لماذا الخادم؟ مفتاح الـ API يجب أن يبقى سرياً على الخادم ولا يظهر في المتصفح.
-// الخادم يجلب قوائم mostPopular لعدة دول، يدمج الفيديو الواحد الذي يظهر في أكثر من دولة،
-// يستبعد تصنيف الموسيقى، ويقسّم النتيجة إلى: عادي · Shorts · كيدس.
-//
-// التشغيل:   npm install   ثم   npm start   ثم افتح  http://localhost:3000
-//   (لتغيير المفتاح دون تعديل الملف:  YOUTUBE_API_KEY=مفتاحك npm start)
+// التشغيل محلياً (PowerShell):
+//   $env:YOUTUBE_API_KEY="مفتاحك"; npm start
+// التشغيل محلياً (CMD):
+//   set YOUTUBE_API_KEY=مفتاحك && npm start
+// ثم افتح http://localhost:3000
 // المتغيرات: YOUTUBE_API_KEY (إلزامي) · PORT (3000) · REGIONS (مثل US,GB,MA,SA)
 
 import http from 'node:http';
@@ -20,8 +19,8 @@ const searchCache = new Map();
 
 export const CFG = {
   port: Number(process.env.PORT) || 3000,
-  // المفتاح: من المتغير YOUTUBE_API_KEY إن وُجد، وإلا المفتاح المكتوب هنا. لا ترفع هذا الملف إلى GitHub ولا تشاركه.
-  key: process.env.YOUTUBE_API_KEY || 'AIzaSyBkWqsDH70LPkmwYjVf5GbUzbLujnqQfVQ',
+  // المفتاح يُقرأ من متغير البيئة فقط. لا تكتبه داخل الملف ولا ترفعه إلى GitHub.
+  key: process.env.YOUTUBE_API_KEY || '',
   regions: (process.env.REGIONS || 'US,GB,CA,AU,IN,BR,MX,DE,FR,ES,IT,JP,KR,ID,TR,SA,EG,AE,MA,DZ')
     .split(',').map(s => s.trim().toUpperCase()).filter(Boolean),
   // قوائم فئات إضافية لكل دولة: القائمة العامة مليئة بالموسيقى، وهذه تُظهر بقية المحتوى
@@ -221,7 +220,7 @@ export async function searchYouTube(q, target = 'video', country = '', hours = 0
   const f = deps.fetchImpl || fetch;
   const key = deps.apiKey !== undefined ? deps.apiKey : CFG.key;
   if (!key) throw new Error('YOUTUBE_API_KEY غير مضبوط');
-  
+
   const searchType = (target === 'channel') ? 'channel' : 'video';
   const ccUpper = (country || '').trim().toUpperCase();
   const cacheKey = `${searchType}:${ccUpper}:${hours}:${q.trim().toLowerCase()}`;
@@ -247,7 +246,7 @@ export async function searchYouTube(q, target = 'video', country = '', hours = 0
   }
 
   const searchItems = sJson.items || [];
-  
+
   if (searchType === 'channel') {
     const channelIds = searchItems.map(it => it.id && it.id.channelId).filter(Boolean);
     if (!channelIds.length) {
@@ -317,7 +316,7 @@ export async function searchYouTube(q, target = 'video', country = '', hours = 0
     const dur = parseDuration(vIt.contentDetails && vIt.contentDetails.duration);
     const live = !!(sn.liveBroadcastContent && sn.liveBroadcastContent !== 'none');
     const kids = !!(vIt.status && vIt.status.madeForKids === true);
-    
+
     items.push({
       rank: index + 1,
       id: sIt.id.videoId,

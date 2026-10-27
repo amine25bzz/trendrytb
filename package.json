@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "description": "لوحة ترندات App Store و Google Play و GitHub",
-  "scripts": { "start": "node server.js" },
-  "engines": { "node": ">=18" },
+  "scripts": { "start": "node --env-file=.env server.js" },
+  "engines": { "node": ">=20.6" },
   "dependencies": { "google-play-scraper": "^10.1.3" }
 }
