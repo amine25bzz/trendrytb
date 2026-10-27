@@ -3,19 +3,8 @@
   "services": {
     "app": {
       "root": ".",
-      "runtime": "node"
-    },
-    "web": {
-      "root": "web",
-      "framework": "vite"
+      "runtime": "node",
+      "entrypoint": "server.js"
     }
-  },
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": {
-        "service": "app"
-      }
-    }
-  ]
+  }
 }

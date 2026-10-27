@@ -1,5 +1,0 @@
-
-> trendradar-web@0.0.0 check:css
-> node scripts/check-css.mjs
-
-check:css OK: 5 CSS file(s) under /home/claude/work/web/src

@@ -1,9 +1,0 @@
-0.2-npm-ci exit=0
-0.1-check-node exit=0
-0.3-check exit=0
-0.4-unit exit=0
-0.5-boundaries exit=0
-0.6-secrets exit=0
-0.6-secrets-tests exit=0
-0.7-e2e exit=0
-0.8-build exit=0
