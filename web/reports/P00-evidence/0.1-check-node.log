@@ -1,0 +1,5 @@
+
+> trendradar-web@0.0.0 check:node
+> node scripts/check-node.mjs
+
+check:node OK: Node 24.11.0

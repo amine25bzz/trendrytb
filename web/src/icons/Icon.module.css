@@ -1,0 +1,14 @@
+@layer components {
+  .icon {
+    display: inline-block;
+    inline-size: var(--icon-size);
+    block-size: var(--icon-size);
+    flex-shrink: 0;
+    vertical-align: middle;
+  }
+
+  /* Direction-bearing glyphs point toward "start"/"end", so they mirror in RTL. */
+  .flipInRtl:dir(rtl) {
+    transform: scaleX(-1);
+  }
+}

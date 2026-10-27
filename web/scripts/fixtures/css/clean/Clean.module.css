@@ -1,0 +1,18 @@
+@layer components {
+  .root {
+    --local-gap: var(--space-2);
+    margin-inline-start: var(--local-gap);
+    padding: var(--space-2) var(--space-2);
+    color: var(--color-ink);
+    background-color: transparent;
+    font-size: var(--text-sm);
+    text-align: start;
+  }
+  .root:hover {
+    color: currentColor;
+  }
+  .axis {
+    /* physical: chart time axis must stay left-to-right */
+    left: 0;
+  }
+}

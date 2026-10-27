@@ -1,0 +1,8 @@
+
+Running 3 tests using 1 worker
+
+  ✓  1 [chromium] › test/e2e/specimen.spec.ts:141:5 › specimen en › @keyboard specimen en: every Tab stop shows the 2px ink focus ring (1.6s)
+  ✓  2 [chromium] › test/e2e/specimen.spec.ts:141:5 › specimen fr › @keyboard specimen fr: every Tab stop shows the 2px ink focus ring (1.4s)
+  ✓  3 [chromium] › test/e2e/specimen.spec.ts:141:5 › specimen ar › @keyboard specimen ar: every Tab stop shows the 2px ink focus ring (1.5s)
+
+  3 passed (6.9s)

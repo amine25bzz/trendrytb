@@ -1,0 +1,127 @@
+
+> trendradar-web@0.0.0 check
+> npm run check:node && npm run check:secrets && npm run typecheck && npm run lint && npm run format:check && npm run check:css && npm run check:contrast && npm run test && npm run test:scripts
+
+
+> trendradar-web@0.0.0 check:node
+> node scripts/check-node.mjs
+
+check:node OK: Node 24.11.0
+
+> trendradar-web@0.0.0 check:secrets
+> node scripts/check-secrets.mjs
+
+check:secrets OK: no secret-like VITE_* names or API keys under /home/claude/work/web
+
+> trendradar-web@0.0.0 typecheck
+> tsc -p tsconfig.app.json && tsc -p tsconfig.node.json
+
+
+> trendradar-web@0.0.0 lint
+> eslint . --max-warnings=0
+
+
+> trendradar-web@0.0.0 format:check
+> prettier . --check
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> trendradar-web@0.0.0 check:css
+> node scripts/check-css.mjs
+
+check:css OK: 5 CSS file(s) under /home/claude/work/web/src
+
+> trendradar-web@0.0.0 check:contrast
+> node scripts/check-contrast.mjs
+
+ok   15.44  min 4.5  text           color-ink on color-paper
+ok   16.69  min 4.5  text           color-ink on color-surface
+ok    6.78  min 4.5  text           color-ink-muted on color-paper
+ok    7.32  min 4.5  text           color-ink-muted on color-surface
+ok    4.76  min 4.5  text           color-heat on color-paper
+ok    5.15  min 4.5  text           color-heat on color-surface
+ok    6.01  min 4.5  text           color-heat-strong on color-paper
+ok    6.50  min 4.5  text           color-heat-strong on color-surface
+ok    5.47  min 4.5  text           color-on-heat on color-heat
+ok    6.90  min 4.5  text           color-on-heat on color-heat-strong
+ok   14.07  min 4.5  text           color-ink on color-heat-wash
+ok    6.18  min 4.5  text           color-ink-muted on color-heat-wash
+ok    5.48  min 4.5  text           color-heat-strong on color-heat-wash
+ok    7.68  min 4.5  text           color-error on color-paper
+ok    8.30  min 4.5  text           color-error on color-surface
+ok    6.37  min 4.5  text           color-notice on color-paper
+ok    6.89  min 4.5  text           color-notice on color-surface
+ok    3.24  min 3    ui             color-ink-faint on color-paper
+ok    3.51  min 3    ui             color-ink-faint on color-surface
+ok    4.34  min 3    ui             color-heat on color-heat-wash
+ok    1.31  min -    decorative     color-rule on color-paper
+ok    1.41  min -    decorative     color-rule on color-surface
+ok    4.34  min -    forbidden-text color-heat on color-heat-wash
+ok    3.24  min -    forbidden-text color-ink-faint on color-paper
+ok    3.51  min -    forbidden-text color-ink-faint on color-surface
+check:contrast OK: 25 pairs
+
+> trendradar-web@0.0.0 test
+> vitest run
+
+
+ RUN  v5.0.5 /home/claude/work/web
+
+
+ Test Files  3 passed (3)
+      Tests  49 passed (49)
+   Start at  00:36:36
+   Duration  3.31s (environment 67%, tests 14%, setup 10%, transform 8%, import 1%)
+
+    Isolate  3 workers spawned · ~752ms startup each (spawn + environment, per file)
+             at least ~1.50s faster with isolate: false — reuses workers across files instead of one per file
+
+
+> trendradar-web@0.0.0 test:scripts
+> node --test scripts/*.test.mjs
+
+✔ a pair below its threshold fails (1.63534ms)
+✔ a passing pair passes and reports its ratio (1.331401ms)
+✔ an unknown token fails (0.249532ms)
+✔ using a forbidden-text pair in one CSS rule fails (0.880864ms)
+✔ the project tokens and declared pairs pass (exit 0) (94.809213ms)
+✔ clean fixture passes (logical props, tokens, local custom property, physical: opt-out) (4.001926ms)
+✔ fails with a specific message: MarginLeft.module.css (2.007758ms)
+✔ fails with a specific message: Important.module.css (1.153326ms)
+✔ fails with a specific message: RawHex.module.css (0.828341ms)
+✔ fails with a specific message: UndefinedVar.module.css (1.890071ms)
+✔ fails with a specific message: RawFontSize.module.css (0.991499ms)
+✔ fails with a specific message: TextAlign.module.css (2.70075ms)
+✔ fails with a specific message: FourValue.module.css (1.211192ms)
+✔ fails with a specific message: NamedColor.module.css (1.109145ms)
+✔ fails with a specific message: ColorFn.module.css (1.252121ms)
+✔ raw colors are allowed inside styles/tokens.css (1.125742ms)
+✔ passes on a clean directory (34.513476ms)
+✔ fails when an env file defines a VITE_* name containing KEY (39.239339ms)
+✔ fails when an env file defines a VITE_* name containing SECRET (35.315345ms)
+✔ fails when an env file defines a VITE_* name containing TOKEN (43.391786ms)
+✔ fails when an env file defines a VITE_* name containing PASSWORD (40.490478ms)
+✔ fails when source code reads a secret-like VITE_* name (43.944378ms)
+✔ fails on a Google API key pattern and never prints the value (44.826835ms)
+✔ lint FAILS: feature-calls-fetch.ts at src/features/trends/load.ts (no-restricted-globals) (1031.386241ms)
+✔ lint FAILS: feature-calls-window-fetch.ts at src/features/trends/load.ts (no-restricted-properties) (9.259223ms)
+✔ lint FAILS: feature-calls-fetch.ts at src/components/Thing.ts (no-restricted-globals) (33.080666ms)
+✔ lint FAILS: feature-imports-adapter.ts at src/features/trends/x.ts (no-restricted-imports) (16.170075ms)
+✔ lint FAILS: feature-imports-mock-relative.ts at src/features/history/x.ts (no-restricted-imports) (10.133793ms)
+✔ lint FAILS: component-imports-feature.ts at src/components/Table.ts (no-restricted-imports) (6.90965ms)
+✔ lint FAILS: lib-imports-react.ts at src/lib/sort.ts (no-restricted-imports) (20.223822ms)
+✔ lint passes: a feature importing only port types (9.025145ms)
+✔ lint passes: the API layer may call fetch (22.757172ms)
+✔ normal production build contains no specimen code (600.788655ms)
+✔ VITE_SPECIMEN=1 build includes the specimen (437.270135ms)
+✔ an invalid VITE_SPECIMEN value fails the build with a clear message (33.438166ms)
+✔ public/fonts matches the pinned @fontsource packages byte for byte (6.384326ms)
+ℹ tests 36
+ℹ suites 0
+ℹ pass 36
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3410.876637

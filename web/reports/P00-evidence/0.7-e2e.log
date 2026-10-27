@@ -1,0 +1,6 @@
+
+Running 1 test using 1 worker
+
+  ✓  1 [chromium] › test/e2e/smoke.spec.ts:3:1 › placeholder page loads with its heading and no console errors (1.5s)
+
+  1 passed (3.6s)

@@ -1,0 +1,16 @@
+
+> trendradar-web@0.0.0 test
+> vitest run
+
+
+ RUN  v5.0.5 /home/claude/work/web
+
+
+ Test Files  2 passed (2)
+      Tests  5 passed (5)
+   Start at  23:23:56
+   Duration  2.02s (environment 73%, setup 11%, tests 10%, transform 4%, import 2%)
+
+    Isolate  2 workers spawned · ~755ms startup each (spawn + environment, per file)
+             at least ~755ms faster with isolate: false — reuses workers across files instead of one per file
+

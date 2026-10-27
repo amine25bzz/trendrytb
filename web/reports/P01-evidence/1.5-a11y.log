@@ -1,0 +1,8 @@
+
+Running 3 tests using 1 worker
+
+  ✓  1 [chromium] › test/e2e/specimen.spec.ts:117:5 › specimen en › @a11y specimen en: axe finds no serious or critical violations (2.9s)
+  ✓  2 [chromium] › test/e2e/specimen.spec.ts:117:5 › specimen fr › @a11y specimen fr: axe finds no serious or critical violations (2.7s)
+  ✓  3 [chromium] › test/e2e/specimen.spec.ts:117:5 › specimen ar › @a11y specimen ar: axe finds no serious or critical violations (2.7s)
+
+  3 passed (10.6s)

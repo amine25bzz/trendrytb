@@ -1,0 +1,30 @@
+
+> trendradar-web@0.0.0 check:contrast
+> node scripts/check-contrast.mjs
+
+ok   15.44  min 4.5  text           color-ink on color-paper
+ok   16.69  min 4.5  text           color-ink on color-surface
+ok    6.78  min 4.5  text           color-ink-muted on color-paper
+ok    7.32  min 4.5  text           color-ink-muted on color-surface
+ok    4.76  min 4.5  text           color-heat on color-paper
+ok    5.15  min 4.5  text           color-heat on color-surface
+ok    6.01  min 4.5  text           color-heat-strong on color-paper
+ok    6.50  min 4.5  text           color-heat-strong on color-surface
+ok    5.47  min 4.5  text           color-on-heat on color-heat
+ok    6.90  min 4.5  text           color-on-heat on color-heat-strong
+ok   14.07  min 4.5  text           color-ink on color-heat-wash
+ok    6.18  min 4.5  text           color-ink-muted on color-heat-wash
+ok    5.48  min 4.5  text           color-heat-strong on color-heat-wash
+ok    7.68  min 4.5  text           color-error on color-paper
+ok    8.30  min 4.5  text           color-error on color-surface
+ok    6.37  min 4.5  text           color-notice on color-paper
+ok    6.89  min 4.5  text           color-notice on color-surface
+ok    3.24  min 3    ui             color-ink-faint on color-paper
+ok    3.51  min 3    ui             color-ink-faint on color-surface
+ok    4.34  min 3    ui             color-heat on color-heat-wash
+ok    1.31  min -    decorative     color-rule on color-paper
+ok    1.41  min -    decorative     color-rule on color-surface
+ok    4.34  min -    forbidden-text color-heat on color-heat-wash
+ok    3.24  min -    forbidden-text color-ink-faint on color-paper
+ok    3.51  min -    forbidden-text color-ink-faint on color-surface
+check:contrast OK: 25 pairs

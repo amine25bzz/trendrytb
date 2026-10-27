@@ -1,0 +1,17 @@
+✔ lint FAILS: feature-calls-fetch.ts at src/features/trends/load.ts (no-restricted-globals) (916.035336ms)
+✔ lint FAILS: feature-calls-window-fetch.ts at src/features/trends/load.ts (no-restricted-properties) (9.758237ms)
+✔ lint FAILS: feature-calls-fetch.ts at src/components/Thing.ts (no-restricted-globals) (31.710452ms)
+✔ lint FAILS: feature-imports-adapter.ts at src/features/trends/x.ts (no-restricted-imports) (10.328548ms)
+✔ lint FAILS: feature-imports-mock-relative.ts at src/features/history/x.ts (no-restricted-imports) (6.383324ms)
+✔ lint FAILS: component-imports-feature.ts at src/components/Table.ts (no-restricted-imports) (7.172497ms)
+✔ lint FAILS: lib-imports-react.ts at src/lib/sort.ts (no-restricted-imports) (16.489903ms)
+✔ lint passes: a feature importing only port types (8.232379ms)
+✔ lint passes: the API layer may call fetch (20.067765ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1328.718061

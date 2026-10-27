@@ -1,0 +1,30 @@
+{
+  "$comment": "Foreground/background token pairs checked by scripts/check-contrast.mjs. use: text (4.5), large-text (3.0), ui (3.0, non-text strokes), decorative (reported, not enforced), forbidden-text (must never be used as text color on that background; the script also fails if a CSS rule combines them).",
+  "pairs": [
+    { "fg": "color-ink", "bg": "color-paper", "use": "text" },
+    { "fg": "color-ink", "bg": "color-surface", "use": "text" },
+    { "fg": "color-ink-muted", "bg": "color-paper", "use": "text" },
+    { "fg": "color-ink-muted", "bg": "color-surface", "use": "text" },
+    { "fg": "color-heat", "bg": "color-paper", "use": "text" },
+    { "fg": "color-heat", "bg": "color-surface", "use": "text" },
+    { "fg": "color-heat-strong", "bg": "color-paper", "use": "text" },
+    { "fg": "color-heat-strong", "bg": "color-surface", "use": "text" },
+    { "fg": "color-on-heat", "bg": "color-heat", "use": "text" },
+    { "fg": "color-on-heat", "bg": "color-heat-strong", "use": "text" },
+    { "fg": "color-ink", "bg": "color-heat-wash", "use": "text" },
+    { "fg": "color-ink-muted", "bg": "color-heat-wash", "use": "text" },
+    { "fg": "color-heat-strong", "bg": "color-heat-wash", "use": "text" },
+    { "fg": "color-error", "bg": "color-paper", "use": "text" },
+    { "fg": "color-error", "bg": "color-surface", "use": "text" },
+    { "fg": "color-notice", "bg": "color-paper", "use": "text" },
+    { "fg": "color-notice", "bg": "color-surface", "use": "text" },
+    { "fg": "color-ink-faint", "bg": "color-paper", "use": "ui" },
+    { "fg": "color-ink-faint", "bg": "color-surface", "use": "ui" },
+    { "fg": "color-heat", "bg": "color-heat-wash", "use": "ui" },
+    { "fg": "color-rule", "bg": "color-paper", "use": "decorative" },
+    { "fg": "color-rule", "bg": "color-surface", "use": "decorative" },
+    { "fg": "color-heat", "bg": "color-heat-wash", "use": "forbidden-text" },
+    { "fg": "color-ink-faint", "bg": "color-paper", "use": "forbidden-text" },
+    { "fg": "color-ink-faint", "bg": "color-surface", "use": "forbidden-text" }
+  ]
+}
